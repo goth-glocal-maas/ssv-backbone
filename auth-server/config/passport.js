@@ -4,13 +4,13 @@ const { User } = require('../db/schema');
 
 passport.use(
   new LocalStrategy({
-    usernameField: 'username',
+    usernameField: 'email',
     passwordField: 'password'
   },
-  function (username, password, done) {
+  function (email, password, done) {
     User
       .query()
-      .where('id', username)
+      .where('email', email)
       .first()
       .then(function (user) {
         if (!user) { return done('Unknown user'); }

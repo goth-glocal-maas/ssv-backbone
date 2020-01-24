@@ -1,0 +1,86 @@
+version: "3.7"
+services:
+  # web:
+  #   build: .
+  #   image: &img stth-py3
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=core.settings
+  #   command: [gunicorn, --bind=0.0.0.0:80, core.wsgi:application, -w4]
+  #   volumes:
+  #     - ./:/code
+  #   networks:
+  #     - stth
+  #   expose:
+  #     - "80/tcp"
+
+  # worker:
+  #   build: .
+  #   image: *img
+  #   command: [celery, worker, --app=core, --concurrency=4, --loglevel=INFO]
+  #   depends_on:
+  #     - beat
+  #   restart: "no"
+  #   volumes:
+  #     - ./:/code
+  #   networks:
+  #     - stth
+
+  # beat:
+  #   build: .
+  #   image: *img
+  #   command: [celery, beat, --app=core, --loglevel=INFO]
+  #   restart: "no"
+  #   volumes:
+  #     - ./:/code
+  #   networks:
+  #     - stth
+
+  auth-server:
+    build: ./auth-server
+    environment:
+      ENCRYPTION_KEY: "{\"type\":\"HS256\", \"key\": \"7d4de41a31d5d637ec4053074d553cfa37ffaf1f4b073c2808a13d2425956e51\"}"
+      DATABASE_URL: postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
+    ports:
+      - "11776:8080"
+
+  # caddy:
+  #   image: abiosoft/caddy:no-stats
+  #   volumes:
+  #     - ./Caddyfile:/etc/Caddyfile
+  #     - ./:/code
+  #   networks:
+  #     - stth
+  #   ports:
+  #     - "20150:2015"
+
+  hasura:
+    container_name: graphql
+    image: hasura/graphql-engine:v1.0.0
+    restart: always
+    environment:
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      HASURA_GRAPHQL_ADMIN_SECRET: taara-hayate-airi
+      HASURA_GRAPHQL_JWT_SECRET: "{\"type\":\"HS256\", \"key\": \"7d4de41a31d5d637ec4053074d553cfa37ffaf1f4b073c2808a13d2425956e51\"}"
+      HASURA_GRAPHQL_DATABASE_URL: postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
+    ports:
+      - "11775:8080"
+
+  db:
+    container_name: postgis
+    image: mdillon/postgis:11-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: sipp11
+      POSTGRES_PASSWORD: koala.nutshell.gis
+      POSTGRES_INITDB_ARGS: --data-checksums
+      POSTGRES_USER: sipp11
+    volumes:
+      - pdmsdata:/var/lib/postgresql/data
+    ports:
+      - "25433:5432"
+    command: postgres -c 'max_connections=300'
+
+
+volumes:
+  pdmsdata:

@@ -10,8 +10,6 @@ export const login = ({ token }) => {
 
 export const auth = ctx => {
   const { token } = nextCookie(ctx)
-  console.log("auth: ", token)
-
   // If there's no token, it means the user is not logged in.
   if (!token) {
     if (typeof window === 'undefined') {
@@ -21,7 +19,6 @@ export const auth = ctx => {
       Router.push('/login')
     }
   }
-
   return token
 }
 

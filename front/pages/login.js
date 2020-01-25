@@ -7,21 +7,25 @@ import fetch from "isomorphic-unfetch"
 import { login } from "../utils/auth"
 
 const LoginPage = props => {
-  const [userData, setUserData] = useState({ username: "", error: "" })
+  const [userData, setUserData] = useState({
+    email: "",
+    password: "",
+    error: ""
+  })
 
   const handleSubmit = async event => {
     event.preventDefault()
     setUserData(Object.assign({}, userData, { error: "" }))
 
-    const username = userData.username
-    const url = "/api/login"
+    const email = userData.email
+    const password = userData.password
+    const url = "http://localhost:11776/login"
 
     try {
       const response = await fetch(url, {
         method: "POST",
-
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ email, password })
       })
       if (response.status === 200) {
         const { token } = await response.json()
@@ -29,16 +33,22 @@ const LoginPage = props => {
       } else {
         console.log("Login failed.")
         // https://github.com/developit/unfetch#caveats
+        const resp = await response.json()
         let error = new Error(response.statusText)
-        error.response = response
+        if (resp.error) {
+          error.message = resp.error
+        } else if (resp.errors) {
+          error.message = resp.errors
+            .map(v => `${v["location"]}: ${v["msg"]}`)
+            .join(",\n")
+        }
         throw error
       }
     } catch (error) {
-      console.error(
+      /* console.error(
         "You have an error in your code or there are Network issues.",
         error
-      )
-
+      ) */
       const { response } = error
       setUserData(
         Object.assign({}, userData, {

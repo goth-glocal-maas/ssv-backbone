@@ -1,46 +1,45 @@
-import { useQuery } from '@apollo/react-hooks'
-import { NetworkStatus } from 'apollo-client'
-import gql from 'graphql-tag'
-import ErrorMessage from './ErrorMessage'
-import PostUpvoter from './PostUpvoter'
+import { useQuery } from "@apollo/react-hooks"
+import { NetworkStatus } from "apollo-client"
+import gql from "graphql-tag"
+import ErrorMessage from "./ErrorMessage"
+import PostUpvoter from "./PostUpvoter"
 
 export const ALL_POSTS_QUERY = gql`
-  query allPosts($first: Int!, $skip: Int!) {
-    allPosts(orderBy: createdAt_DESC, first: $first, skip: $skip) {
+  query ALL_POSTS_QUERY($limit: Int!, $offset: Int!) {
+    posts(order_by: { created_at: desc }, limit: $limit, offset: $offset) {
       id
       title
-      votes
-      url
-      createdAt
+      slug
+      text
+      created_at
     }
-    _allPostsMeta {
-      count
+    posts_aggregate {
+      aggregate {
+        count
+      }
     }
   }
 `
-export const allPostsQueryVars = {
-  skip: 0,
-  first: 10,
+export const postsQueryVars = {
+  limit: 10,
+  offset: 0
 }
 
 export default function PostList() {
-  const { loading, error, data, fetchMore, networkStatus } = useQuery(
-    ALL_POSTS_QUERY,
-    {
-      variables: allPostsQueryVars,
-      // Setting this value to true will make the component rerender when
-      // the "networkStatus" changes, so we are able to know if it is fetching
-      // more data
-      notifyOnNetworkStatusChange: true,
-    }
-  )
-
+  const qResult = useQuery(ALL_POSTS_QUERY, {
+    variables: postsQueryVars,
+    // Setting this value to true will make the component rerender when
+    // the "networkStatus" changes, so we are able to know if it is fetching
+    // more data
+    notifyOnNetworkStatusChange: true
+  })
+  const { loading, error, data, fetchMore, networkStatus } = qResult
   const loadingMorePosts = networkStatus === NetworkStatus.fetchMore
 
   const loadMorePosts = () => {
     fetchMore({
       variables: {
-        skip: allPosts.length,
+        offset: posts.length
       },
       updateQuery: (previousResult, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
@@ -48,34 +47,38 @@ export default function PostList() {
         }
         return Object.assign({}, previousResult, {
           // Append the new posts results to the old one
-          allPosts: [...previousResult.allPosts, ...fetchMoreResult.allPosts],
+          posts: [...previousResult.posts, ...fetchMoreResult.posts]
         })
-      },
+      }
     })
   }
 
   if (error) return <ErrorMessage message="Error loading posts." />
   if (loading && !loadingMorePosts) return <div>Loading</div>
 
-  const { allPosts, _allPostsMeta } = data
-  const areMorePosts = allPosts.length < _allPostsMeta.count
+  const { posts, posts_aggregate } = data
+  const areMorePosts = posts.length < posts_aggregate.aggregate.count
 
   return (
-    <section>
+    <>
       <ul>
-        {allPosts.map((post, index) => (
+        {posts.map((post, index) => (
           <li key={post.id}>
             <div>
               <span>{index + 1}. </span>
-              <a href={post.url}>{post.title}</a>
-              <PostUpvoter id={post.id} votes={post.votes} />
+              <a href={`/post/${post.slug}`}>{post.title}</a>
+              {/* <PostUpvoter id={post.id} votes={post.votes} /> */}
             </div>
           </li>
         ))}
       </ul>
       {areMorePosts && (
-        <button onClick={() => loadMorePosts()} disabled={loadingMorePosts}>
-          {loadingMorePosts ? 'Loading...' : 'Show More'}
+        <button
+          className="button is-success is-small"
+          onClick={() => loadMorePosts()}
+          disabled={loadingMorePosts}
+        >
+          {loadingMorePosts ? "Loading..." : "Show More"}
         </button>
       )}
       <style jsx>{`
@@ -110,12 +113,12 @@ export default function PostList() {
           border-style: solid;
           border-width: 6px 4px 0 4px;
           border-color: #ffffff transparent transparent transparent;
-          content: '';
+          content: "";
           height: 0;
           margin-right: 5px;
           width: 0;
         }
       `}</style>
-    </section>
+    </>
   )
 }

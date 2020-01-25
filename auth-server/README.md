@@ -1,59 +1,153 @@
-# JWT Authentication server Boilerplate
+# Authentication with JWT, Hasura claims and multiple roles
 
-Sample JWT Authentication server for generating a JWT to use in the `Authentication` header by the built in JWT decoder in Hasura GraphQL Engine when started in JWT mode.
+This is a sample auth JWT service for authenticating requests to the Hasura GraphQL Engine. This also exposes login and signup endpoints. Note that this repository can also be used in webhook mode in using the `/webhook` endpoint. The specifics of this repository is that it maps a `user_role` table to generate `x-hasura-allowed-roles` in the JWT claim so multiple roles can work with the Hasura Grapqh Engine as a backend of the application.
+
+The endpoints to manage users are very limited (it is only possible to create a new user through the `/signup` endpoint). This is kind of a choice as this service is meant to be used for authentication only. The user and roles management can be done through the Hasura Graphql Engine or any other service accessing to the same database.
+
+## Rationale
+
+See this [issue](https://github.com/hasura/graphql-engine/issues/1420).
+
+## Database schema
+
+Three tables are used:
+
+- `user`:
+  - `id`: UUID. Primary key. Automatically generated.
+  - `username`: String. Unique user identifier.
+  - `password`: String. Hashed with bcrypt.
+  - `active`: Boolean. If not active, not possible to connect with this user.
+- `role`:
+  - `id`: UUID. Primary key. Automatically generated.
+  - `name`: String. Unique role identifier.
+- `user_role`:
+  - `id`: UUID. Primary key. Automatically generated.
+  - `role_id`: UUID. Foreign key that references the `id` of the `role` table.
+  - `user_id`: UUID. Foreign key that references the `id` of the `user` table.
+
+## Prerequisites
+
+- PostgreSQL
+- Node.js 8.9+
 
 ## Getting Started
 
-### Deploy locally
+### Environment variables
 
-#### Local Prerequisites
+_Note: you can find examples of RSA keys in the repository. **DO NOT USE THEM FOR PRODUCTION!**_
 
--   PostgreSQL up and accepting connections
--   Hasura GraphQL engine up and accepting connections
--   Node.js 8.9+ installed
+- `AUTH_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nypPTIfSzZ399o........"`
 
-#### Local instructions
+  RSA private key used to sign the JWT. You need to escape the lines with "\n" in the variable. If the variable is not set, it will try to use the private.pem file.
 
-Install NPM dependencies
+- `AUTH_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nV02/4RJi........"`
+
+  RSA private key used to deliver the JWK set. You need to escape the lines with "\n" in the variable. Please not that this feature is not working yet. If the variable is not set, it will try to use the public.pem file.
+
+- `AUTH_KEY_ID="<unique-id-for-this-key>"`
+
+  Used to identify the key currently used to sign the tokens. If the variable is not set, a hash string will be generated from the public key and used instead.
+
+- `DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database_name>`
+
+  URL to connect to the Postgres database. The format is . For instance: `DATABASE_URL=postgres://postgres:@localhost:5432/postgres`
+
+- `PORT=8080`
+
+The port the server will listen to.
+
+### Build and deploy on Docker (production)
+
+First you need to build the image and to tag it:
 
 ```bash
+docker build . -t hasura/passportjs-jwt-roles:latest
+```
+
+TODO: document on how to deploy on docker.
+
+You can also have a look at [this docker-compose gist](https://gist.github.com/plmercereau/b8503c869ffa2b5d4e42dc9137b56ae1) to see how I use this service in a docker stack with Hasura and [Traefik](https://traefik.io/).
+
+### Deploy locally (developpment)
+
+```bash
+# Clone the repo
+git clone https://github.com/hasura/graphql-engine
+
+# Change directory
+cd community/boilerplates/auth-servers/passportjs-jwt-roles
+
+# Install NPM dependencies
 npm install
-```
 
-Set environment variables. Open `.env` file and add the following env
+# Generate the RSA keys
+openssl genrsa -out private.pem 2048
+openssl rsa -in private.pem -pubout > public.pem
 
-```bash
-ENCRYPTION_KEY=<replace_it_with_your_JWT_SECRET>
-DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database_name>
-PORT=8080
-```
+# print the keys in an escaped format
+awk -v ORS='\\n' '1' private.pem
+awk -v ORS='\\n' '1' public.pem
 
-##### User Schema
+export DATABASE_URL=postgres://postgres:@localhost:5432/postgres
 
-The following `users` table is assumed to be present in your schema. The table can have additional fields too.
+# Apply migrations
+# (Note) this step creates tables "users", "roles" and "user_roles" in the database
+knex migrate:latest
 
-| name       | type    | nullable | unique | default | primary |
-| ---------- | ------- | -------- | ------ | ------- | ------- |
-| id         | Text    | no       | yes    |         | yes     |
-| name       | Text    | no       | no     |         | no      |
-| password   | Text    | no       | no     |         | no      |
-| created_at | Date    | no       | no     | now()   |         |
-
-Then start your app
-
-```bash
+# Then simply start your app
 npm start
 ```
 
+<!-- ### Deploy with Heroku
+
+TODO: test deployment with heroku, and rewrite this part
+
+```bash
+ # Create heroku app
+ heroku create <app-name>
+
+ # Create PostgreSQL addon
+ heroku addons:create heroku-postgresql:hobby-dev -a <app-name>
+
+ # Add git remote
+ git remote add heroku https://git.heroku.com/<app-name>.git
+
+ # Push changes to heroku
+ # Note: You need to run this command from the toplevel of the working tree (graphql-enginej)
+ git subtree push --prefix community/boilerplates/auth-webhooks/passport-js heroku master
+
+ # Apply migrations
+# (Note) this step creates a "users" table in the database
+ heroku run knex migrate:latest
+``` -->
+
+### Configure the Hasura GraphQL Engine
+
+Run the Hasura GraphQL engine with `HASURA_GRAPHQL_JWT_SECRET` set like this:
+
+```json
+{ "type": "RS256", "key": "<AUTH_PUBLIC_KEY>" }
+```
+
+Where `<AUTH_PUBLIC_KEY>` is your RSA public key in PEM format, with the line breaks escaped with "\n".
+
+You can also configure the server in JWKS mode and set `HASURA_GRAPHQL_JWT_SECRET` like this:
+
+```json
+{ "type": "RS256", "jwk_url": "hostname:port/jwks" }
+```
+
+More information in the [Hasura documentation](https://docs.hasura.io/1.0/graphql/manual/auth/authentication/jwt.html).
+
 ## Usage
 
-### Signup/Login
+### Signup
 
-Once deployed or started locally, we can create a user using `/signup` API like below:
+Once deployed or started locally, we can create an user using `/signup` API like below:
 
 ```bash
 curl -H "Content-Type: application/json" \
-     -d'{"username": "test123", "password": "test123"}' \
+     -d'{"username": "test123", "password": "test123", "confirmPassword": "test123"}' \
      http://localhost:8080/signup
 ```
 
@@ -61,11 +155,16 @@ On success, we get the response:
 
 ```json
 {
-  "id": 1
+  "id": "907f0dc7-6887-4232-8b6e-da3d5908f137",
+  "username": "test123",
+  "roles": ["user"],
+  "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoicGlsb3UiLCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibWFuYWdlciIsInVzZXIiXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoidXNlciIsIngtaGFzdXJhLXVzZXItaWQiOiI5MDdmMGRjNy02ODg3LTQyMzItOGI2ZS1kYTNkNTkwOGYxMzcifSwiaWF0IjoxNTQ4OTI5MTY2LCJleHAiOjE1NTE1MjExNjYsInN1YiI6IjkwN2YwZGM3LTY4ODctNDIzMi04YjZlLWRhM2Q1OTA4ZjEzNyJ9.hoY-lZ-6rbN_WVFy0Taxbf6QCtDPaTm407l6opv2bz-Hui9T7l7aafStsx9w-UscWUFWHpeStIo1ObV-lT8-j9t-nw9q5fr8wuO2zyKBMXjhD57ykR6BcKvJQMxE1JjyetVLHpj5r4mIb7_kaA8Dj8Vy2yrWFReHXDczYpQGc43mxxC05B5_xdScQrSbs9MkgQRh-Z5EknlLKWkpbuxPvoyWcH1wgLum7UABGNO7drvmcDDaRk6Lt99A3t40sod9mJ3H9UqdooLOfBAg9kcaCSgqWDkmCLBwtM8ONbKZ4cEZ8NEseCQYKqIoyHQH9vbf9Y6GBaJVbBoEay1cI48Hig"
 }
 ```
 
-We can also use `/login` API to fetch the user token:
+### Login
+
+Let's use the `/login` endpoint to fetch the user information and JWT:
 
 ```bash
 curl -H "Content-Type: application/json" \
@@ -73,26 +172,30 @@ curl -H "Content-Type: application/json" \
      http://localhost:8080/login
 ```
 
-On success, we get the response:
+It will then send back user information including the JWT in the same format as the above `/signup` endoint.
 
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsIm5hbWUiOiJ0ZXN0MTIzIiwiaWF0IjoxNTQwMjkyMzgyLjQwOSwiaHR0cHM6Ly9oYXN1cmEuaW8vand0L2NsYWltcyI6eyJ4LWhhc3VyYS1hbGxvd2VkLXJvbGVzIjpbImVkaXRvciIsInVzZXIiLCJtb2QiXSwieC1oYXN1cmEtdXNlci1pZCI6MSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoidXNlciJ9fQ.KtAUroqyBroBJL7O9og3Z4JnRkWNfr07cHQfeLarclU"
-}
-```
-
-### Authenticate JWT using GraphQL Engine
-
-The GraphQL engine comes with built in JWT authentication.  You will need to start the engine with the same secret/key as the JWT auth server using the environment variable `HASURA_GRAPHQL_JWT_SECRET` (HASURA_GRAPHQL_ADMIN_SECRET is also required to set this up). Read more in [docs](https://docs.hasura.io/1.0/graphql/manual/auth/authentication/jwt.html#running-with-jwt)
-
-In your GraphQL engine you will need to add permissions for a user named `user` with read permissions on the table and columns.
-
-A sample CURL command using the above token would be:
+You can use this boilerplate as a webhook server in using the `/webhook` endpoint to fetch a webhook token:
 
 ```bash
-curl -X POST \
-  http://localhost:8081/v1/graphql \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6InRlc3QxMjMiLCJpYXQiOjE1NDAzNzY4MTUuODUzLCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiZWRpdG9yIiwidXNlciIsIm1vZCJdLCJ4LWhhc3VyYS11c2VyLWlkIjoiMSIsIngtaGFzdXJhLWRlZmF1bHQtcm9sZSI6InVzZXIiLCJ4LWhhc3VyYS1yb2xlIjoidXNlciJ9fQ.w9uj0FtesZOFUnwYT2KOWHr6IKWsDRuOC9G2GakBgMI' \
-  -H 'Content-Type: application/json' \
-  -d '{ "query": "{ table { column } }" }'
+curl -H "Content-Type: application/json" \
+     -d'{"username": "test123", "password": "test123"}' \
+     http://localhost:8080/login
 ```
+
+## Limitations
+
+- Not tested with Heroku
+- There is no user and role management except to create a single user with no specific role. I myself do this part with a frontend app that access the database through a Hasura GraphQL endpoint.
+- This server is designed to work with one RSA key only, and does not handle its regular rotation.
+- No handling of JWT expiration and key turnover.
+- This server is not (yet?) designed to handle authentication through other services such as Google, GitHub... It would be nice to do so, but to keep this server as a proxy that would add the Hasura claims in querying the database about the roles of the user. Comments or any contribution are welcome as well on this one.
+- No automated tests.
+- another cool feature to be would be to expose the endpoints through hasura remote schema, and not directly to the client
+
+## Credits
+
+The original repository can be found [here](https://github.com/platyplus/authentication-server).
+
+This repository is inspired from the original [auth-webhooks/passport-js repo](https://github.com/hasura/graphql-engine/tree/master/community/boilerplates/auth-webhooks/passport-js).
+
+Contributions are welcome!

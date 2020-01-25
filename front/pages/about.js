@@ -1,43 +1,47 @@
-import App from '../components/App'
-import Header from '../components/Header'
+import App from "../components/App"
 
 export default () => (
   <App>
-    <Header />
     <article>
-      <h1>The Idea Behind This Example</h1>
-      <p>
-        <a href="https://www.apollographql.com/client/">Apollo</a> is a GraphQL
-        client that allows you to easily query the exact data you need from a
-        GraphQL server. In addition to fetching and mutating data, Apollo
-        analyzes your queries and their results to construct a client-side cache
-        of your data, which is kept up to date as further queries and mutations
-        are run, fetching more results from the server.
-      </p>
-      <p>
-        In this simple example, we integrate Apollo seamlessly with{' '}
-        <a href="https://github.com/zeit/next.js">Next</a> by wrapping our Page
-        component inside a{' '}
-        <a href="https://facebook.github.io/react/docs/higher-order-components.html">
-          higher-order component (HOC)
-        </a>
-        . Using the HOC pattern we're able to pass down a central store of query
-        result data created by Apollo into our React component hierarchy defined
-        inside a page of our Next application.
-      </p>
-      <p>
-        On initial page load, while on the server and inside getInitialProps, we
-        invoke the Apollo method,{' '}
-        <a href="https://www.apollographql.com/docs/react/api/react-ssr/#getdatafromtree">
-          getDataFromTree
-        </a>
-        . This method returns a promise; at the point in which the promise
-        resolves, our Apollo Client store is completely initialized.
-      </p>
-      <p>
-        This example relies on <a href="http://graph.cool">graph.cool</a> for
-        its GraphQL backend.
-      </p>
+      <h1>รวมลิงค์ที่เกี่ยวข้อง</h1>
+      <ul>
+        <li>
+          <a href="http://www.lamtakong.com/" target="_blank">
+            สถานการณ์น้ำเขื่อนลำตะคอง
+          </a>
+        </li>
+        <li>
+          <a href="http://www.rid8.go.th/" target="_blank">
+            สำนักงานชลประทานที่ 8
+          </a>
+        </li>
+        <li>
+          <a href="https://www.tmd.go.th/" target="_blank">
+            กรมอุตุนิยมวิทยา
+          </a>
+        </li>
+        <li>
+          <a href="https://www.baac.or.th/" target="_blank">
+            ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.dit.go.th/Content.aspx?m=19&amp;c=110"
+            target="_blank"
+          >
+            ราคาข้าวเปลือก ข้าวสาร : กรมการค้าภายใน
+          </a>
+        </li>
+        <li>
+          <a
+            href="http://www.thairicemillers.org/index.php?lay=show&amp;ac=article&amp;Ntype=19"
+            target="_blank"
+          >
+            ราคาข้าวสาร : สมาคมโรงสีข้าวไทย
+          </a>
+        </li>
+      </ul>
     </article>
   </App>
 )

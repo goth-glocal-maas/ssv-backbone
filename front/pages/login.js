@@ -1,10 +1,10 @@
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import App from "../components/App"
-import InfoBox from "../components/InfoBox"
-import Header from "../components/Header"
 import { withApollo } from "../lib/apollo"
 import fetch from "isomorphic-unfetch"
 import { login } from "../utils/auth"
+import { AUTH_SERVER_URI } from "../utils/constants"
 
 const LoginPage = props => {
   const [userData, setUserData] = useState({
@@ -13,13 +13,10 @@ const LoginPage = props => {
     error: ""
   })
 
-  const handleSubmit = async event => {
-    event.preventDefault()
-    setUserData(Object.assign({}, userData, { error: "" }))
-
-    const email = userData.email
-    const password = userData.password
-    const url = "http://localhost:11776/login"
+  const { handleSubmit, register, errors } = useForm()
+  const onSubmit = async values => {
+    const { email, password } = values
+    const url = `${AUTH_SERVER_URI}/login`
 
     try {
       const response = await fetch(url, {
@@ -28,8 +25,8 @@ const LoginPage = props => {
         body: JSON.stringify({ email, password })
       })
       if (response.status === 200) {
-        const { token } = await response.json()
-        await login({ token })
+        const { id, email, token, roles } = await response.json()
+        await login({ id, email, token, roles })
       } else {
         console.log("Login failed.")
         // https://github.com/developit/unfetch#caveats
@@ -60,41 +57,67 @@ const LoginPage = props => {
 
   return (
     <App>
-      <Header />
-      <InfoBox>in favour of full Server-Side-Rendering.</InfoBox>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex-card auth-card">
+          <div className="tabs-wrapper">
+            {/* <div className="tabs">
+              <ul>
+                <li className="is-active" data-tab="login-tab">
+                  <a>Login</a>
+                </li>
+                <li data-tab="register-tab">
+                  <a>Register</a>
+                </li>
+              </ul>
+            </div> */}
+            <div id="login-tab" className="tab-content is-active">
+              <div className="field">
+                <label>Username</label>
+                <div className="control">
+                  <input
+                    type="text"
+                    className="input is-medium"
+                    placeholder="Enter username"
+                    name="email"
+                    ref={register({
+                      required: "Required",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                        message: "invalid email address"
+                      }
+                    })}
+                  />
+                </div>
+                {errors.email && errors.email.message}
+              </div>
+              <div className="field">
+                <label>Password</label>
+                <div className="control">
+                  <input
+                    type="password"
+                    className="input is-medium"
+                    placeholder="Enter password"
+                    name="password"
+                    ref={register({
+                      required: "Required",
+                      validate: value => value !== "admin" || "Nice try!"
+                    })}
+                  />
+                </div>
+                {errors.password && errors.password.message}
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <div className="login">
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="text"
-            id="email"
-            name="email"
-            value={userData.email}
-            onChange={event =>
-              setUserData(
-                Object.assign({}, userData, { email: event.target.value })
-              )
-            }
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={userData.password}
-            onChange={event =>
-              setUserData(
-                Object.assign({}, userData, { password: event.target.value })
-              )
-            }
-          />
-
-          <button type="submit">Login</button>
-
-          {userData.error && <p className="error">Error: {userData.error}</p>}
-        </form>
-      </div>
+        {userData.error && <p className="error">Error: {userData.error}</p>}
+        <button
+          type="submit"
+          className="button is-fullwidth secondary-btn is-rounded raised"
+        >
+          Login
+        </button>
+      </form>
     </App>
   )
 }

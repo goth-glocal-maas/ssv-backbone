@@ -1,16 +1,7 @@
-FROM node:10-alpine
-
-RUN apk --no-cache add --virtual builds-deps build-base python
-
-RUN mkdir -p /opt/app
-RUN chown node:node /opt/app
-
-WORKDIR /opt/app
-
+FROM node:11-alpine
+WORKDIR /root/app
 COPY package.json .
-USER node
-RUN npm install
-
+RUN npm install --only=production
 COPY . .
-
+EXPOSE 8080
 CMD npm start

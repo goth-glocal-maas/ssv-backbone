@@ -1,10 +1,12 @@
-import React from 'react'
-import Head from 'next/head'
-import { ApolloProvider } from '@apollo/react-hooks'
-import { ApolloClient } from 'apollo-client'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { HttpLink } from 'apollo-link-http'
-import fetch from 'isomorphic-unfetch'
+import React from "react"
+import Head from "next/head"
+import cookie from "js-cookie"
+import { ApolloProvider } from "@apollo/react-hooks"
+import { ApolloClient } from "apollo-client"
+import { InMemoryCache } from "apollo-cache-inmemory"
+import { HttpLink } from "apollo-link-http"
+import fetch from "isomorphic-unfetch"
+import { GRAPHQL_URI } from "../utils/constants"
 
 let globalApolloClient = null
 
@@ -27,12 +29,12 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
   }
 
   // Set the correct displayName in development
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     const displayName =
-      PageComponent.displayName || PageComponent.name || 'Component'
+      PageComponent.displayName || PageComponent.name || "Component"
 
-    if (displayName === 'App') {
-      console.warn('This withApollo HOC only works with PageComponents.')
+    if (displayName === "App") {
+      console.warn("This withApollo HOC only works with PageComponents.")
     }
 
     WithApollo.displayName = `withApollo(${displayName})`
@@ -53,7 +55,7 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
       }
 
       // Only on the server:
-      if (typeof window === 'undefined') {
+      if (typeof window === "undefined") {
         // When redirecting, the response is finished.
         // No point in continuing to render
         if (ctx.res && ctx.res.finished) {
@@ -64,12 +66,12 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
         if (ssr) {
           try {
             // Run all GraphQL queries
-            const { getDataFromTree } = await import('@apollo/react-ssr')
+            const { getDataFromTree } = await import("@apollo/react-ssr")
             await getDataFromTree(
               <AppTree
                 pageProps={{
                   ...pageProps,
-                  apolloClient,
+                  apolloClient
                 }}
               />
             )
@@ -77,7 +79,7 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
             // Prevent Apollo Client GraphQL errors from crashing SSR.
             // Handle them in components via the data.error prop:
             // https://www.apollographql.com/docs/react/api/react-apollo.html#graphql-query-data-error
-            console.error('Error while running `getDataFromTree`', error)
+            console.error("Error while running `getDataFromTree`", error)
           }
 
           // getDataFromTree does not call componentWillUnmount
@@ -91,7 +93,7 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
 
       return {
         ...pageProps,
-        apolloState,
+        apolloState
       }
     }
   }
@@ -107,7 +109,7 @@ export function withApollo(PageComponent, { ssr = true } = {}) {
 function initApolloClient(initialState) {
   // Make sure to create a new client for every server-side request so that data
   // isn't shared between connections (which would be bad)
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return createApolloClient(initialState)
   }
 
@@ -124,15 +126,26 @@ function initApolloClient(initialState) {
  * @param  {Object} [initialState={}]
  */
 function createApolloClient(initialState = {}) {
+  let token = cookie.get("token")
+  let headers = {}
+  if (token) {
+    headers = {
+      Authorization: token ? `Bearer ${token}` : "",
+      "X-Hasura-Allowed-Roles": ["user"],
+      "X-Hasura-Default-Role": "user"
+    }
+  }
+  // TODO: need to deal with update APOLLO client after login
   // Check out https://github.com/zeit/next.js/pull/4611 if you want to use the AWSAppSyncClient
   return new ApolloClient({
-    ssrMode: typeof window === 'undefined', // Disables forceFetch on the server (so queries are only run once)
+    ssrMode: typeof window === "undefined", // Disables forceFetch on the server (so queries are only run once)
     link: new HttpLink({
       // uri: 'https://api.graph.cool/simple/v1/cixmkt2ul01q00122mksg82pn', // Server URL (must be absolute)
-      uri: 'http://localhost:11775/v1/graphql', // Server URL (must be absolute)
-      credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
-      fetch,
+      uri: GRAPHQL_URI || "http://localhost:11775/v1/graphql", // Server URL (must be absolute)
+      // credentials: "same-origin", // Additional fetch() options like `credentials` or `headers`
+      headers,
+      fetch
     }),
-    cache: new InMemoryCache().restore(initialState),
+    cache: new InMemoryCache().restore(initialState)
   })
 }

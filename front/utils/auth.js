@@ -1,49 +1,63 @@
-import { useEffect } from 'react'
-import Router from 'next/router'
-import nextCookie from 'next-cookies'
-import cookie from 'js-cookie'
+import { useEffect } from "react"
+import Router from "next/router"
+import nextCookie from "next-cookies"
+import cookie from "js-cookie"
 
-export const login = ({ token }) => {
-  cookie.set('token', token, { expires: 1 })
-  Router.push('/profile')
+export const hasRoles = roles => {
+  const r = cookie.get("roles")
+  if (!r) return false
+  if (typeof roles === "string") return roles === r
+  if (roles instanceof Array) return roles.includes(r)
+  return false
+}
+
+export const login = ({ id, email, token, roles }) => {
+  cookie.set("token", token, { expires: 1 })
+  cookie.set("id", id, { expires: 1 })
+  cookie.set("email", email, { expires: 1 })
+  cookie.set("roles", roles, { expires: 1 })
+  Router.push("/profile")
 }
 
 export const auth = ctx => {
   const { token } = nextCookie(ctx)
   // If there's no token, it means the user is not logged in.
   if (!token) {
-    if (typeof window === 'undefined') {
-      ctx.res.writeHead(302, { Location: '/login' })
+    if (typeof window === "undefined") {
+      ctx.res.writeHead(302, { Location: "/login" })
       ctx.res.end()
     } else {
-      Router.push('/login')
+      Router.push("/login")
     }
   }
   return token
 }
 
 export const logout = () => {
-  cookie.remove('token')
+  cookie.remove("token")
+  cookie.remove("id")
+  cookie.remove("email")
+  cookie.remove("roles")
   // to support logging out from all windows
-  window.localStorage.setItem('logout', Date.now())
-  Router.push('/login')
+  window.localStorage.setItem("logout", Date.now())
+  Router.push("/login")
 }
 
 export const withAuthSync = WrappedComponent => {
   const Wrapper = props => {
     const syncLogout = event => {
-      if (event.key === 'logout') {
-        console.log('logged out from storage!')
-        Router.push('/login')
+      if (event.key === "logout") {
+        console.log("logged out from storage!")
+        Router.push("/login")
       }
     }
 
     useEffect(() => {
-      window.addEventListener('storage', syncLogout)
+      window.addEventListener("storage", syncLogout)
 
       return () => {
-        window.removeEventListener('storage', syncLogout)
-        window.localStorage.removeItem('logout')
+        window.removeEventListener("storage", syncLogout)
+        window.localStorage.removeItem("logout")
       }
     }, [])
 

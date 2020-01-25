@@ -38,8 +38,8 @@ services:
   auth-server:
     build: ./auth-server
     environment:
-      ENCRYPTION_KEY: "{\"type\":\"HS256\", \"key\": \"7d4de41a31d5d637ec4053074d553cfa37ffaf1f4b073c2808a13d2425956e51\"}"
-      DATABASE_URL: postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      DATABASE_URL: ${DATABASE_URL}
     ports:
       - "11776:8080"
 
@@ -61,8 +61,8 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_ADMIN_SECRET: taara-hayate-airi
-      HASURA_GRAPHQL_JWT_SECRET: "{\"type\":\"HS256\", \"key\": \"7d4de41a31d5d637ec4053074d553cfa37ffaf1f4b073c2808a13d2425956e51\"}"
-      HASURA_GRAPHQL_DATABASE_URL: postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
+      HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
+      HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
     ports:
       - "11775:8080"
 

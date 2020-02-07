@@ -3,6 +3,8 @@ const { Strategy: LocalStrategy } = require("passport-local")
 const { Strategy: BearerStrategy } = require("passport-http-bearer")
 const { User } = require("../db/schema")
 const { errorHandler } = require("../db/errors")
+const jwt = require("jsonwebtoken")
+const jwtConfig = require("../config/jwt")
 
 passport.use(
   new LocalStrategy(
@@ -41,15 +43,26 @@ passport.use(
 
 passport.use(
   new BearerStrategy(function(token, done) {
+    var decoded
+    try {
+      decoded = jwt.verify(token, jwtConfig.publicKey, { algorithm: "RS256" })
+    } catch (err) {
+      return done("Invalid token")
+    }
+    const now = Math.floor(new Date() / 1000)
+    const { exp } = decoded
+    if (exp < now) return done("Expired token")
+    const claims = decoded["https://hasura.io/jwt/claims"]
+    const uid = claims["x-hasura-user-id"]
     User.query()
-      .where("token", token)
+      .where("id", uid)
       .first()
       // .eager("roles")
       .then(function(user) {
         if (!user) {
           return done("Invalid Token")
         }
-        if (!user.active) {
+        if (!user.is_active) {
           return done("User is inactive")
         }
         return done(null, user)

@@ -14,7 +14,7 @@ Three tables are used:
 
 - `user`:
   - `id`: UUID. Primary key. Automatically generated.
-  - `username`: String. Unique user identifier.
+  - `email`: String. Unique user identifier.
   - `password`: String. Hashed with bcrypt.
   - `active`: Boolean. If not active, not possible to connect with this user.
 - `role`:
@@ -48,7 +48,7 @@ _Note: you can find examples of RSA keys in the repository. **DO NOT USE THEM FO
 
   Used to identify the key currently used to sign the tokens. If the variable is not set, a hash string will be generated from the public key and used instead.
 
-- `DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database_name>`
+- `DATABASE_URL=postgres://<email>:<password>@<host>:<port>/<database_name>`
 
   URL to connect to the Postgres database. The format is . For instance: `DATABASE_URL=postgres://postgres:@localhost:5432/postgres`
 
@@ -147,7 +147,7 @@ Once deployed or started locally, we can create an user using `/signup` API like
 
 ```bash
 curl -H "Content-Type: application/json" \
-     -d'{"username": "test123", "password": "test123", "confirmPassword": "test123"}' \
+     -d'{"email": "test123", "password": "test123", "confirmPassword": "test123"}' \
      http://localhost:8080/signup
 ```
 
@@ -156,7 +156,7 @@ On success, we get the response:
 ```json
 {
   "id": "907f0dc7-6887-4232-8b6e-da3d5908f137",
-  "username": "test123",
+  "email": "test123",
   "roles": ["user"],
   "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoicGlsb3UiLCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibWFuYWdlciIsInVzZXIiXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoidXNlciIsIngtaGFzdXJhLXVzZXItaWQiOiI5MDdmMGRjNy02ODg3LTQyMzItOGI2ZS1kYTNkNTkwOGYxMzcifSwiaWF0IjoxNTQ4OTI5MTY2LCJleHAiOjE1NTE1MjExNjYsInN1YiI6IjkwN2YwZGM3LTY4ODctNDIzMi04YjZlLWRhM2Q1OTA4ZjEzNyJ9.hoY-lZ-6rbN_WVFy0Taxbf6QCtDPaTm407l6opv2bz-Hui9T7l7aafStsx9w-UscWUFWHpeStIo1ObV-lT8-j9t-nw9q5fr8wuO2zyKBMXjhD57ykR6BcKvJQMxE1JjyetVLHpj5r4mIb7_kaA8Dj8Vy2yrWFReHXDczYpQGc43mxxC05B5_xdScQrSbs9MkgQRh-Z5EknlLKWkpbuxPvoyWcH1wgLum7UABGNO7drvmcDDaRk6Lt99A3t40sod9mJ3H9UqdooLOfBAg9kcaCSgqWDkmCLBwtM8ONbKZ4cEZ8NEseCQYKqIoyHQH9vbf9Y6GBaJVbBoEay1cI48Hig"
 }
@@ -168,7 +168,7 @@ Let's use the `/login` endpoint to fetch the user information and JWT:
 
 ```bash
 curl -H "Content-Type: application/json" \
-     -d'{"username": "test123", "password": "test123"}' \
+     -d'{"email": "test123", "password": "test123"}' \
      http://localhost:8080/login
 ```
 
@@ -178,7 +178,7 @@ You can use this boilerplate as a webhook server in using the `/webhook` endpoin
 
 ```bash
 curl -H "Content-Type: application/json" \
-     -d'{"username": "test123", "password": "test123"}' \
+     -d'{"email": "test123", "password": "test123"}' \
      http://localhost:8080/login
 ```
 

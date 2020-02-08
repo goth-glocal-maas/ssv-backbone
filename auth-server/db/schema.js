@@ -53,6 +53,7 @@ class User extends Model {
   getUser() {
     return {
       id: this.id,
+      is_active: this.is_active,
       email: this.email,
       roles: this.role,
       token: this.getJwt()
@@ -60,8 +61,20 @@ class User extends Model {
   }
 
   getHasuraClaims() {
+    let allowedRoles = []
+    switch (this.role) {
+      case "admin":
+        allowedRoles = ["admin", "officer", "user"]
+        break
+      case "officer":
+        allowedRoles = ["officer", "user"]
+        break
+      case "user":
+        allowedRoles = ["user"]
+        break
+    }
     return {
-      "x-hasura-allowed-roles": ["user"],
+      "x-hasura-allowed-roles": allowedRoles,
       "x-hasura-default-role": this.role,
       "x-hasura-user-id": `${this.id}`
       // 'x-hasura-org-id': '123',

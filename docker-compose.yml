@@ -1,57 +1,22 @@
 version: "3.7"
 services:
-  # web:
-  #   build: .
-  #   image: &img stth-py3
-  #   environment:
-  #     - DJANGO_SETTINGS_MODULE=core.settings
-  #   command: [gunicorn, --bind=0.0.0.0:80, core.wsgi:application, -w4]
-  #   volumes:
-  #     - ./:/code
-  #   networks:
-  #     - stth
-  #   expose:
-  #     - "80/tcp"
-
-  # worker:
-  #   build: .
-  #   image: *img
-  #   command: [celery, worker, --app=core, --concurrency=4, --loglevel=INFO]
-  #   depends_on:
-  #     - beat
-  #   restart: "no"
-  #   volumes:
-  #     - ./:/code
-  #   networks:
-  #     - stth
-
-  # beat:
-  #   build: .
-  #   image: *img
-  #   command: [celery, beat, --app=core, --loglevel=INFO]
-  #   restart: "no"
-  #   volumes:
-  #     - ./:/code
-  #   networks:
-  #     - stth
-
-  auth-server:
+  express:
     build: ./auth-server
     environment:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       DATABASE_URL: ${DATABASE_URL}
     ports:
       - "11776:8080"
+    volumes:
+      - ./public/media:/root/app/media
 
-  # caddy:
-  #   image: abiosoft/caddy:no-stats
-  #   volumes:
-  #     - ./Caddyfile:/etc/Caddyfile
-  #     - ./:/code
-  #   networks:
-  #     - stth
-  #   ports:
-  #     - "20150:2015"
+  caddy:
+    image: abiosoft/caddy:no-stats
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+      - ./:/code
+    ports:
+      - "1178:2015"
 
   hasura:
     container_name: graphql

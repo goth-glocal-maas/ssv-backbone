@@ -20,6 +20,27 @@ Model.knex(knexConnection)
 //   }
 // }
 
+class Media extends Model {
+  static get tableName() {
+    return "media"
+  }
+  static get idColumn() {
+    return "id"
+  }
+
+  static get jsonSchema() {
+    return {
+      type: "object",
+      required: ["name", "user"],
+      properties: {
+        id: { type: "string" },
+        user: { type: "string", minLength: 1, maxLength: 255 },
+        name: { type: "string", minLength: 1, maxLength: 255 }
+      }
+    }
+  }
+}
+
 class User extends Model {
   static get tableName() {
     return "users"
@@ -121,4 +142,4 @@ class User extends Model {
   }
 }
 
-module.exports = { User }
+module.exports = { User, Media }

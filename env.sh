@@ -3,3 +3,4 @@ export ENCRYPTION_KEY='{"type":"RS256", "key": "-----BEGIN PUBLIC KEY-----\nMIIB
 export DATABASE_URL=postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
 export AUTH_PRIVATE_KEY=/root/app/private.pem
 export AUTH_PUBLIC_KEY=/root/app/public.pem
+export UPLOAD_DIR=/root/app/media

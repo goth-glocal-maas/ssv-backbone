@@ -182,6 +182,20 @@ curl -H "Content-Type: application/json" \
      http://localhost:8080/login
 ```
 
+### Reset password process
+
+```bash
+curl -H "Content-Type: application/json" \
+    -d'{"email": "sipp11@gmail.com"}' \
+    http://localhost:8080/req-reset
+```
+
+```bash
+curl -H "Content-Type: application/json" \
+    -d'{"password": "test1234", "confirmPassword": "test1234", "resetToken": "f0484853631c6f94b2e3ed407fbecab9369f2705"}' \
+    http://localhost:8080/reset-password
+```
+
 ## Limitations
 
 - Not tested with Heroku

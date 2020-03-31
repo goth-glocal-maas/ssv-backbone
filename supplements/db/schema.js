@@ -88,11 +88,11 @@ class User extends Model {
 
   async $beforeInsert() {
     const salt = bcrypt.genSaltSync()
-    this.password = await bcrypt.hash(this.password, salt)
+    if (this.password) this.password = await bcrypt.hash(this.password, salt)
   }
 
   async $beforeUpdate() {
-    await $beforeInsert()
+    await this.$beforeInsert()
   }
 
   verifyPassword(password, callback) {

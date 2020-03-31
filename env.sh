@@ -6,3 +6,4 @@ export UPLOAD_DIR=/root/app/media
 export HASURA_ADMIN_SECRET=taara-hayate-airi
 export DATABASE_URL=postgres://sipp11:koala.nutshell.gis@postgis:5432/hailing
 export DATABASE_PASSWORD=koala.nutshell.gis
+export FRONTEND_URL=https://hailing.10z.dev

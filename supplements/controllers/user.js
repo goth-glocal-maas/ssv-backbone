@@ -1,11 +1,11 @@
 const passport = require("../config/passport")
+const transport = require("../config/transport")
 const { User } = require("../db/schema")
 const { errorHandler } = require("../db/errors")
 const rasha = require("rasha")
 const jwtConfig = require("../config/jwt")
 const { randomBytes } = require("crypto")
 const { promisify } = require("util")
-const bcrypt = require("bcryptjs")
 
 /**
  * Sends the JWT key set
@@ -98,10 +98,11 @@ exports.getWebhook = async (req, res, next) => {
 }
 
 exports.requestReset = async (req, res, next) => {
+  const { email } = req.body
   // 1. Check if this is a real user
-  let reqUser = await User.query().where("email", req.body.email)
+  let reqUser = await User.query().where("email", email)
   if (reqUser.length === 0) {
-    let msg = `No such user found for email ${req.body.email}`
+    let msg = `No such user found for email ${email}`
     handleResponse(res, 401, { error: msg })
     return next
   }
@@ -117,17 +118,22 @@ exports.requestReset = async (req, res, next) => {
       reset_token: resetToken,
       reset_token_expiry: new Date(resetTokenExpiry)
     })
+  if (numUpdated < 1) {
+    let msg = "There is something wrong on our server."
+    return handleResponse(res, 500, { error: msg })
+  }
 
   // 3. Email them that reset token
-  /* const mailRes = await transport.sendMail({
-    from: 'sipp11@zzyzx.co',
-    to: user.email,
-    subject: 'Your Password Reset Token',
-    html: makeANiceEmail(`Your Password Reset Token is here!
+  const resetUrl = `${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}`
+  const mailRes = await transport.sendMail({
+    from: "sipp11@gmail.com",
+    to: email,
+    subject: "Your Password Reset Token",
+    text: `Go to ${resetUrl} to reset your password.`,
+    html: `Your Password Reset Token is here!
     \n\n
-    <a href="${process.env
-      .FRONTEND_URL}/reset?resetToken=${resetToken}">Click Here to Reset</a>`),
-  }); */
+    <a href="${resetUrl}">Click Here to Reset</a>`
+  })
 
   // 4. Return the message
   let msg = { success: "Please check your email for a reset password link." }
@@ -165,6 +171,11 @@ exports.resetPassword = async (req, res, next) => {
       reset_token_expiry: null,
       password: password
     })
+
+  if (numUpdated < 1) {
+    let msg = "There is something wrong on our server."
+    return handleResponse(res, 500, { error: msg })
+  }
   // 6. return the new user
   return handleResponse(res, 200, user.getUser())
 }

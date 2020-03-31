@@ -9,12 +9,12 @@ const jwtConfig = require("../config/jwt")
 passport.use(
   new LocalStrategy(
     {
-      usernameField: "username",
+      usernameField: "email",
       passwordField: "password"
     },
-    function(username, password, done) {
+    function(email, password, done) {
       User.query()
-        .where("username", username)
+        .where("email", email)
         .first()
         // .eager("roles")
         .then(function(user) {
@@ -61,9 +61,6 @@ passport.use(
       .then(function(user) {
         if (!user) {
           return done("Invalid Token")
-        }
-        if (!user.is_active) {
-          return done("User is inactive")
         }
         return done(null, user)
       })

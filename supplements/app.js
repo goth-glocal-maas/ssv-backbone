@@ -48,6 +48,8 @@ app.use(passport.session())
 app.post("/upload", uploadController.uploadFiles)
 app.post("/login", userController.postLogin)
 app.post("/signup", userController.postSignup)
+app.post("/req-reset", userController.requestReset)
+app.post("/reset-password", userController.resetPassword)
 app.get("/webhook", userController.getWebhook)
 app.get("/jwks", userController.getJwks)
 /**

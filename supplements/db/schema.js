@@ -10,16 +10,6 @@ const knexConnection = Knex(connection)
 
 Model.knex(knexConnection)
 
-// class Role extends Model {
-//   static get tableName() {
-//     return 'role'
-//   }
-
-//   static get idColumn() {
-//     return 'id'
-//   }
-// }
-
 class Media extends Model {
   static get tableName() {
     return "media"
@@ -31,10 +21,10 @@ class Media extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["name", "user"],
+      required: ["name", "user_id"],
       properties: {
         id: { type: "string" },
-        user: { type: "string", minLength: 1, maxLength: 255 },
+        user_id: { type: "string", minLength: 1, maxLength: 255 },
         name: { type: "string", minLength: 1, maxLength: 255 }
       }
     }
@@ -43,38 +33,17 @@ class Media extends Model {
 
 class User extends Model {
   static get tableName() {
-    return "users"
+    return "user"
   }
 
   static get idColumn() {
     return "id"
   }
 
-  // static get relationMappings() {
-  //   return {
-  //     roles: {
-  //       relation: Model.ManyToManyRelation,
-  //       modelClass: Role,
-  //       join: {
-  //         from: 'user.id',
-  //         through: {
-  //           from: 'user_role.user_id',
-  //           to: 'user_role.role_id'
-  //         },
-  //         to: 'role.id'
-  //       }
-  //     }
-  //   }
-  // }
-
-  // getRoles() {
-  //   return this.roles.map(el => el.name).concat('user')
-  // }
-
   getUser() {
     return {
       id: this.id,
-      is_active: this.is_active,
+      username: this.username,
       email: this.email,
       roles: this.role,
       token: this.getJwt()
@@ -133,10 +102,10 @@ class User extends Model {
   static get jsonSchema() {
     return {
       type: "object",
-      required: ["email"],
+      required: ["username"],
       properties: {
         id: { type: "string" },
-        email: { type: "string", minLength: 1, maxLength: 255 }
+        username: { type: "string", minLength: 1, maxLength: 255 }
       }
     }
   }

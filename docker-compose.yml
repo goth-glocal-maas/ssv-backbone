@@ -1,7 +1,7 @@
 version: "3.7"
 services:
-  express:
-    build: ./auth-server
+  supplements:
+    build: ./supplements
     environment:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       DATABASE_URL: ${DATABASE_URL}
@@ -9,6 +9,10 @@ services:
       - "11776:8080"
     volumes:
       - ./public/media:/root/app/media
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      MEDIA_DIR: ${UPLOAD_DIR}
 
   caddy:
     image: abiosoft/caddy:no-stats
@@ -20,12 +24,12 @@ services:
 
   hasura:
     container_name: graphql
-    image: hasura/graphql-engine:v1.0.0
+    image: hasura/graphql-engine:v1.2.0-beta.2
     restart: always
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
-      HASURA_GRAPHQL_ADMIN_SECRET: taara-hayate-airi
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
     ports:
@@ -37,15 +41,15 @@ services:
     restart: always
     environment:
       POSTGRES_USER: sipp11
-      POSTGRES_PASSWORD: koala.nutshell.gis
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_INITDB_ARGS: --data-checksums
       POSTGRES_USER: sipp11
     volumes:
-      - pdmsdata:/var/lib/postgresql/data
+      - goth-data:/var/lib/postgresql/data
     ports:
       - "25435:5432"
     command: postgres -c 'max_connections=300'
 
 
 volumes:
-  pdmsdata:
+  goth-data:

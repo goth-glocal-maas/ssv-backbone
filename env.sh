@@ -1,6 +1,8 @@
 #!/bin/bash
-export ENCRYPTION_KEY='{"type":"RS256", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzN25tgAXH+GrrrkZzNM2\n04qtp9l9H7JMb8X7OUL4Wu5uZYyYvCkFzcLTHUoDpWD9V1WmuTyBaimyY6oTTkQF\nImZEDce8o3bfzkQR9w6SLLqg6F4nAHU1UaXQPl2k5RG+bWDJCRjwNnQOhP8WaZHN\nWi70TpEhDZRXgAFMSNHtXCQPYMlnrCsER+gWrTl2T7NFIgRhsRZeTDBAQjuLZ/LH\nZH8Fsmj/mwy4ip9Vmq9clgRxD66lU1cZ2d+EXieMU0xA0niIaRt2LAIskLHoz/oP\n7sMv39NgjIXCYUNIwcWkXOkP8QCOKwWIJxy2deXeG25VeM9FM1AMMwZABUlzxwqR\nWQIDAQAB\n-----END PUBLIC KEY-----\n"}'
-export DATABASE_URL=postgres://sipp11:koala.nutshell.gis@postgis:5432/pdms
+export ENCRYPTION_KEY='{"type":"RS256", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuCuIAGbi8nJXp0eXChlG\nARVeFMZ0CIs46rcAyc0t/Ax+rtHLabs/88grhTiCjAN5Aju0/ziE/BVD+or9825z\nnLXBrGku/j6/x8A+QmF2/DNLhkRCs2RS0BlSluFiquCbQC1TcZFeDd8xIoGpbBQU\nh/7bw2x/RfsO5XFex0QrjcIJnr3fyqnGzI4EFpRaOweyn61YA49EVovJhJ1VQTPb\nJieiboSo1jc0J2C1pN+R4rJBNn1iqtkAcuo9LReVJWjKAWAkc9rP4OLMqbBSP2HA\nLH0BSDpdKOcCXTck1L1d4jwjPa2x36zQUqXCNJD5w+KnL2O+3298BNlnjuVy0I7Z\nhwIDAQAB\n-----END PUBLIC KEY-----\n"}'
 export AUTH_PRIVATE_KEY=/root/app/private.pem
 export AUTH_PUBLIC_KEY=/root/app/public.pem
 export UPLOAD_DIR=/root/app/media
+export HASURA_ADMIN_SECRET=taara-hayate-airi
+export DATABASE_URL=postgres://sipp11:koala.nutshell.gis@postgis:5432/stth
+export DATABASE_PASSWORD=koala.nutshell.gis

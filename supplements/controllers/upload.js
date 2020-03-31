@@ -18,7 +18,7 @@ const handleOneFile = async (item, body) => {
 
   try {
     const media = await Media.query()
-      .allowInsert("[user, name, mimetype, ext, size]")
+      .allowInsert("[user_id, name, mimetype, ext, size]")
       .insert(one)
     const nPath = path.join(process.env.MEDIA_DIR, `${media.id}.${media.ext}`)
     item.mv(nPath)

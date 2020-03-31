@@ -9,12 +9,12 @@ const jwtConfig = require("../config/jwt")
 passport.use(
   new LocalStrategy(
     {
-      usernameField: "email",
+      usernameField: "username",
       passwordField: "password"
     },
-    function(email, password, done) {
+    function(username, password, done) {
       User.query()
-        .where("email", email)
+        .where("username", username)
         .first()
         // .eager("roles")
         .then(function(user) {

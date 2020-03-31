@@ -3,10 +3,9 @@ const { User } = require("../db/schema")
 const { errorHandler } = require("../db/errors")
 const rasha = require("rasha")
 const jwtConfig = require("../config/jwt")
-const { randomBytes } = require("crypto");
-const { promisify } = require("util");
-const bcrypt = require("bcryptjs");
-
+const { randomBytes } = require("crypto")
+const { promisify } = require("util")
+const bcrypt = require("bcryptjs")
 
 /**
  * Sends the JWT key set
@@ -71,20 +70,18 @@ exports.postSignup = async (req, res, next) => {
       .allowInsert("[username, password]")
       .insert({
         username: req.body.username,
-        password: req.body.password
+        password: req.body.password,
+        role: "user"
       })
+    return handleResponse(res, 200, user.getUser())
   } catch (err) {
-    errorHandler(err, res)
+    if (`${err.constraint}` === "user_username_key") {
+      return res.status(400).json({ errors: "username is already taken" })
+    } else {
+      errorHandler(err, res)
+    }
     return
   }
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return handleResponse(res, 400, { error: err })
-    }
-    if (user) {
-      handleResponse(res, 200, user.getUser())
-    }
-  })(req, res, next)
 }
 
 exports.getWebhook = async (req, res, next) => {
@@ -100,30 +97,30 @@ exports.getWebhook = async (req, res, next) => {
   })(req, res, next)
 }
 
-
 exports.requestReset = async (req, res, next) => {
   // 1. Check if this is a real user
   let reqUser = await User.query().where("email", req.body.email)
   if (reqUser.length === 0) {
-    let msg = `No such user found for email ${args.email}`;
-    return handleResponse(res, 401, { error: msg })
+    let msg = `No such user found for email ${req.body.email}`
+    handleResponse(res, 401, { error: msg })
+    return next
   }
 
   // 2. Set a reset token and expiry on that user
-  const randomBytesPromiseified = promisify(randomBytes);
-  const resetToken = (await randomBytesPromiseified(20)).toString("hex");
-  const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+  const randomBytesPromiseified = promisify(randomBytes)
+  const resetToken = (await randomBytesPromiseified(20)).toString("hex")
+  const resetTokenExpiry = Date.now() + 3600000 // 1 hour from now
 
   const numUpdated = await User.query()
-    .findById(reqUser.id)
+    .findById(reqUser[0].id)
     .patch({
-      resetToken,
-      resetTokenExpiry
-    });
+      reset_token: resetToken,
+      reset_token_expiry: new Date(resetTokenExpiry)
+    })
 
   // 3. Email them that reset token
   /* const mailRes = await transport.sendMail({
-    from: 'wes@wesbos.com',
+    from: 'sipp11@zzyzx.co',
     to: user.email,
     subject: 'Your Password Reset Token',
     html: makeANiceEmail(`Your Password Reset Token is here!
@@ -133,49 +130,43 @@ exports.requestReset = async (req, res, next) => {
   }); */
 
   // 4. Return the message
-  let msg = { "success": "Please check your email for a reset password link." }
+  let msg = { success: "Please check your email for a reset password link." }
   return handleResponse(res, 200, msg)
-
 }
 
 exports.resetPassword = async (req, res, next) => {
   /*
     req.body.email
   */
-  const { password, confirmPassword } = req.body
+  const { password, confirmPassword, resetToken } = req.body
   // 1. check if the passwords match
-  if (req.body.password !== req.body.confirmPassword) {
-    let msg = `Yo Passwords don't match!`;
+  if (password !== confirmPassword) {
+    let msg = `Yo Passwords don't match!`
     return handleResponse(res, 401, { error: msg })
   }
   // 2. check if its a legit reset token
   // 3. Check if its expired
 
+  let users = await User.query()
+    .where("reset_token", "=", resetToken)
+    .where("reset_token_expiry", ">", new Date())
 
-  let user = await User.query().where("resetToken", req.args.resetToken).where("resetTokenExpiry_gte", '>', Date.now() - 3600000)
-
-  if (!user) {
-    let msg = "This token is either invalid or expired!";
+  if (users.length === 0) {
+    let msg = "This token is either invalid or expired!"
     return handleResponse(res, 401, { error: msg })
   }
+  const user = users[0]
   // 4. Hash their new password -- automatically in db.schema
   // 5. Save the new password to the user and remove old resetToken fields
-  const updatedUser = await User.query()
+  const numUpdated = await User.query()
     .findById(user.id)
     .patch({
-      resetToken: null,
-      resetTokenExpiry: null,
+      reset_token: null,
+      reset_token_expiry: null,
       password: password
-    });
-  // 6. Generate JWT
-  // const token = jwt.sign({ userId: updatedUser.id }, process.env.APP_SECRET);
-  // 7. Set the JWT cookie
-  // ctx.response.cookie("token", token, {
-  //   httpOnly: true,
-  //   maxAge: 1000 * 60 * 60 * 24 * 365
-  // });
-  // 8. return the new user
-  return handleResponse(res, 200, updatedUser.getUser());
+    })
+  // 6. return the new user
+  return handleResponse(res, 200, user.getUser())
 }
 
 function handleResponse(res, code, statusMsg) {

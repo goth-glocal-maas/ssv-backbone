@@ -1,5 +1,5 @@
 
-export ENCRYPTION_KEY='{"type":"RS256", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzQZa2XWwB2oMdwgSGv0C\nPVDhfkfZohvgqJhKGUtQw4mR3IbcOm7LArOlfIcDGMmfHGfWS0ufnSu0J8trJIj4\ngLTq6f+vMldiclrETLlsylkdOI3iKgo8RXKtC9y1jON9Rtcs0FkzdTKIMs7xDJ8D\njfSpoCvO5tYj4wbIZzKBHGt/pkuB24/kJX5/O7uZFR/+J8m5H5+xDTBx4C8ECDph\nVexpwsyruZFAl4p8ycRIm9+zWUaqc3BzUYbybbHE8GaYT9MN3kAUpCgK8cNSUKsq\nBnzJdwG4HKBwnfAv3/s4J/EjHeus8vVJPuis2nViaWdgReWeDTPG412g3TX3dYiA\naQIDAQAB\n-----END PUBLIC KEY-----\n"}'
+export ENCRYPTION_KEY='{"type":"RS256", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqyP/VZazaPB7ssyWSjKZ\nbuLfb4vJAXoVs9ED5mRq5nTR3yVLkZrH1rmZXpi7tepNn6pS6bffli9sL+qP3SfJ\nfz69wpIW8Rv/gQZEvJCSQI5H0ovhDr/0oGwlr2S7XUI5yoHNiMXT/bS56lSzQ2pM\nJnAlZSD+MORid6BmlArl7EQfF00plb7Qt6LhvvrhnJx79qW7IkrWxEViOezJ1QRb\nVYRfskKxMd00AXYIJoZPkmJToYKr3PwR7SnSZ+4VUCvbPmjtC27nxflydOCthx3E\nR0TTgiz0nXnnSy5zIMGtz39uZoNue4ebjB2d5KSz6Mn3lpP+n5NoQsaVpOxHwFMr\nzwIDAQAB\n-----END PUBLIC KEY-----\n"}'
 export AUTH_PRIVATE_KEY=/root/app/private.pem
 export AUTH_PUBLIC_KEY=/root/app/public.pem
 export UPLOAD_DIR=/root/app/media

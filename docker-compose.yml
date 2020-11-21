@@ -29,7 +29,7 @@ services:
 
   hasura:
     container_name: graphql
-    image: hasura/graphql-engine:v1.2.0-beta.2
+    image: hasura/graphql-engine:v1.3.0
     restart: always
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"

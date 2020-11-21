@@ -45,7 +45,7 @@ class User extends Model {
       id: this.id,
       username: this.username,
       email: this.email,
-      roles: this.role,
+      roles: [this.role],
       token: this.getJwt()
     }
   }

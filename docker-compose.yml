@@ -22,6 +22,11 @@ services:
     ports:
       - "1178:2015"
 
+  redis:
+     image: redis:alpine
+     ports:
+      - "6379:6379"
+
   hasura:
     container_name: graphql
     image: hasura/graphql-engine:v1.2.0-beta.2

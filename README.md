@@ -1,11 +1,9 @@
-
 # Components
 
-* PostGIS
-* Hasura
-* Auth
-* Nextjs (or Caddy w/Nextjs export)
-
+- PostGIS
+- Hasura
+- Auth
+- Nextjs (or Caddy w/Nextjs export)
 
 # Database
 
@@ -25,15 +23,14 @@ users table
 # Testing
 
     curl -H "Content-Type: application/json" \
-        -d'{"email": "sipp11@gmail.com", "password": "test1234"}' \
+        -d'{"username": "sipp11@gmail.com", "password": "test1234"}' \
         http://localhost:11776/signup
 
 
     curl -H "Content-Type: application/json" \
-        -d'{"email": "sipp11@example.com", "password": "test1234"}' \
+        -d'{"username": "sipp11@example.com", "password": "test1234"}' \
         http://localhost:11776/login
 
     curl -H "Content-Type: application/json" \
-        -d'{"email": "sipp11@gmail.com", "password": "test1234"}' \
+        -d'{"username": "sipp11@gmail.com", "password": "test1234"}' \
         http://localhost:11776/login
-

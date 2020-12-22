@@ -5,8 +5,6 @@ services:
     environment:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       DATABASE_URL: ${DATABASE_URL}
-    ports:
-      - "11776:8080"
     volumes:
       - ./public/media:/root/app/media
     environment:
@@ -28,31 +26,33 @@ services:
       - "6379:6379"
 
   hasura:
-    container_name: graphql
-    image: hasura/graphql-engine:v1.3.0
+    container_name: ssv-gql
+    image: hasura/graphql-engine:v1.3.3
     restart: always
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
     ports:
-      - "11775:8080"
+      - "11776:8080"
 
   db:
-    container_name: postgis
-    image: mdillon/postgis:11-alpine
+    container_name: ssv-db
+    image: postgis/postgis:12-3.0-alpine
     restart: always
     environment:
       POSTGRES_USER: sipp11
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: hailing
       POSTGRES_INITDB_ARGS: --data-checksums
       POSTGRES_USER: sipp11
     volumes:
       - goth-data:/var/lib/postgresql/data
     ports:
-      - "25435:5432"
+      - "25436:5432"
     command: postgres -c 'max_connections=300'
 
 

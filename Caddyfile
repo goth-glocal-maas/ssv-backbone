@@ -3,14 +3,14 @@ gzip
 log /code/access.log
 
 # gql server
-proxy /v1 graphql:8080
-proxy /console graphql:8080
+proxy /v1 ssv-gql:8080
+proxy /console ssv-gql:8080
 
-# express server
-proxy /upload express:8080
-proxy /login express:8080
-proxy /signup express:8080
-proxy /webhook express:8080
-proxy /jwks express:8080
+#ssv-express server
+proxy /upload ssv-express:8080
+proxy /login ssv-express:8080
+proxy /signup ssv-express:8080
+proxy /webhook ssv-express:8080
+proxy /jwks ssv-express:8080
 
 root /code/public

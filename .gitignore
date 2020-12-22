@@ -2,4 +2,5 @@
 access.log
 *.pem
 .env
+env
 env.sh

@@ -1,4 +1,4 @@
 
-set -a
-source env.sh
+#set -a
+#env.sh
 docker-compose up -d --build

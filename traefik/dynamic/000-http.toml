@@ -1,15 +1,22 @@
 [http]
   [http.routers]
     [http.routers.dashboard]
+    entryPoints = ["websecure"]
     rule = "Host(`traffic.10z.dev`)"
     service = "api@internal"
     middlewares = "simple-auth"
     [http.routers.dashboard.tls]
-       certResolver = "myresolver"
+      certResolver = "myresolver"
+
+    [http.routers.healthcheck]
+    entryPoints = ["web", "websecure"]
+    rule = "Host(`traffic.10z.dev`) && PathPrefix(`/ping`)"
+    service = "ping@internal"
+    [http.routers.healthcheck.tls]
+      certResolver = "myresolver"
 
   [http.middlewares]
     [http.middlewares.simple-auth.basicAuth]
     users = [
-      "test:$apr1$SimrQ.wb$rKloZud3pWWFlxtSqc6ip/",
-      "test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0",
+      "sipp11:$apr1$R73svdYc$vWZ4GiV8GHabQL0JRqDax.",
     ]

@@ -1,0 +1,10 @@
+## Dynamic configuration
+[tcp]
+  [tcp.routers]
+    [tcp.routers.postgres]
+      entryPoints = ["postgresql"]
+      # Catch every request (only available rule for non-tls routers. See below.)
+      rule = "HostSNI(`*`)"
+      service = "db-backbone@docker"
+    #[tcp.routers.postgres.tls]
+    #  certResolver = "myresolver"

@@ -15,6 +15,9 @@
     #[entryPoints.websecure.http.tls]
     #  certResolver = "myresolver"
 
+  [entryPoints.postgresql]
+     address = ":25432"
+
 [api]
   dashboard = true
 
@@ -34,3 +37,7 @@
   [certificatesResolvers.myresolver.acme.httpChallenge]
     # used during the challenge
     entryPoint = "web"
+
+[pilot]
+    token = "919af36f-24e1-4999-a431-d37d772169a0"
+

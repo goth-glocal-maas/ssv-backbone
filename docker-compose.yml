@@ -6,15 +6,13 @@ services:
     # Enables the web UI and tells Traefik to listen to docker
     command:
       - --api
-    #   # - --api.insecure=true
       - --providers.docker
-    #   # - --providers.docker.exposedbydefault=false
+      - --providers.docker.exposedbydefault=false
     ports:
       # The HTTP port
       - "80:80"
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
+      - "25432:25432"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -39,6 +37,8 @@ services:
       MEDIA_DIR: ${UPLOAD_DIR}
     networks:
       - proxy_default
+    labels:
+      - "traefik.http.middlewares.compressor.compress=true"
 
   # caddy:
   #   image: abiosoft/caddy:no-stats
@@ -54,10 +54,12 @@ services:
       - proxy_default
     expose:
       - 6379
+    labels:
+      - traefik.tcp.routers.redis
 
   graphql:
     container_name: graphql
-    image: hasura/graphql-engine:v2.0.0-alpha.4
+    image: hasura/graphql-engine:v1.3.3
     restart: always
     environment:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
@@ -65,10 +67,13 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
+      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "inherited_roles"
     networks:
       - proxy_default
     expose:
       - 8080
+    labels:
+      - "traefik.http.middlewares.compressor.compress=true"
 
   db:
     container_name: postgis
@@ -86,6 +91,8 @@ services:
     expose:
       - 5432
     command: postgres -c 'max_connections=300'
+    labels:
+      - traefik.tcp.routers.psql.entrypoints=postgresql
 
 
 volumes:

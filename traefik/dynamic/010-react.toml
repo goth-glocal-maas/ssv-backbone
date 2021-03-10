@@ -1,0 +1,15 @@
+[http]
+  [http.routers]
+    [http.routers.dash]
+    entryPoints = ["web", "websecure"]
+    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/dash`)"
+    service = "react-dash@docker"
+    [http.routers.dash.tls]
+       certResolver = "myresolver"
+
+    [http.routers.liff]
+    entryPoints = ["web", "websecure"]
+    rule = "Host(`taxi-liff.10z.dev`)"
+    service = "react-liff@docker"
+    [http.routers.liff.tls]
+       certResolver = "myresolver"

@@ -1,3 +1,18 @@
+# Setup
+
+    openssl genrsa -out private.pem 2048
+    openssl rsa -in private.pem -pubout > public.pem
+    mv *.pen supplements/
+
+## Prep for env variable
+
+    awk -v ORS='\\n' '1' public.pem
+
+## Start
+
+    source env
+    docker-compose up --build
+
 # Components
 
 - PostGIS

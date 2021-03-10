@@ -20,28 +20,26 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.toml:/etc/traefik/traefik.toml
       - ./traefik/dynamic:/traefik-conf
+      - ./acme:/etc/traefik/acme
     networks:
       - proxy_default
-    # labels:
-    #   traefik.enable: true
-    #   traefik.http.routers.dashboard.rule: Host(`example.net`)
-    #   traefik.http.routers.dashboard.service: api@internal
-    #   traefik.http.routers.dashboard.middlewares: test-auth
-    #   traefik.http.middlewares.test-auth.basicauth.users: test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/,test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0
 
   supplements:
     build: ./supplements
     environment:
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       DATABASE_URL: ${DATABASE_URL}
-    ports:
-      - "11776:8080"
+    expose:
+      - 8080
     volumes:
       - ./public/media:/root/app/media
     environment:
       DATABASE_URL: ${DATABASE_URL}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       MEDIA_DIR: ${UPLOAD_DIR}
+    networks:
+      - proxy_default
+
   # caddy:
   #   image: abiosoft/caddy:no-stats
   #   volumes:
@@ -51,22 +49,26 @@ services:
   #     - "1178:2015"
 
   redis:
-     image: redis:alpine
-     ports:
-      - "6379:6379"
+    image: redis:alpine
+    networks:
+      - proxy_default
+    expose:
+      - 6379
 
-  # hasura:
-  #   container_name: graphql
-  #   image: hasura/graphql-engine:v1.3.0
-  #   restart: always
-  #   environment:
-  #     HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
-  #     HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
-  #     HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
-  #     HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
-  #     HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
-  #   ports:
-  #     - "11775:8080"
+  graphql:
+    container_name: graphql
+    image: hasura/graphql-engine:v2.0.0-alpha.4
+    restart: always
+    environment:
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
+      HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
+      HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - proxy_default
+    expose:
+      - 8080
 
   db:
     container_name: postgis
@@ -79,8 +81,10 @@ services:
       POSTGRES_USER: sipp11
     volumes:
       - goth-data:/var/lib/postgresql/data
-    ports:
-      - "25435:5432"
+    networks:
+      - proxy_default
+    expose:
+      - 5432
     command: postgres -c 'max_connections=300'
 
 

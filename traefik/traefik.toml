@@ -3,17 +3,17 @@
     address = ":80"
     [entryPoints.web.forwardedHeaders]
       trustedIPs = ["127.0.0.1/32", "10.1.1.50"]
-    #[entryPoints.web.http]
-    #  [entryPoints.web.http.redirections]
-    #    [entryPoints.web.http.redirections.entryPoint]
-    #      to = "websecure"
-    #      scheme = "https"
+    [entryPoints.web.http]
+      [entryPoints.web.http.redirections]
+        [entryPoints.web.http.redirections.entryPoint]
+          to = "websecure"
+          scheme = "https"
   [entryPoints.websecure]
     address = ":443"
     #[entryPoints.websecure.forwardedHeaders]
     #  trustedIPs = ["127.0.0.1/32", "10.1.1.50"]
     #[entryPoints.websecure.http.tls]
-    #  certResolver = "leresolver"
+    #  certResolver = "myresolver"
 
 [api]
   dashboard = true
@@ -28,9 +28,9 @@
     directory = "/traefik-conf"
     watch = true
 
-#[certificatesResolvers.myresolver.acme]
-#  email = "your-email@example.com"
-#  storage = "acme.json"
-#  [certificatesResolvers.myresolver.acme.httpChallenge]
-#    # used during the challenge
-#    entryPoint = "web"
+[certificatesResolvers.myresolver.acme]
+  email = "sipp11@gmail.com"
+  storage = "/etc/traefik/acme/acme.json"
+  [certificatesResolvers.myresolver.acme.httpChallenge]
+    # used during the challenge
+    entryPoint = "web"

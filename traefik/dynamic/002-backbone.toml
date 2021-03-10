@@ -1,0 +1,13 @@
+[http]
+  [http.routers]
+    [http.routers.backbone-express]
+    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/upload`,`/login`,`/signup`)"
+    service = "supplements-backbone@docker"
+    [http.routers.backbone-express.tls]
+       certResolver = "myresolver"
+
+    [http.routers.gql-express]
+    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/v1`,`/console`)"
+    service = "graphql-backbone@docker"
+    [http.routers.gql-express.tls]
+       certResolver = "myresolver"

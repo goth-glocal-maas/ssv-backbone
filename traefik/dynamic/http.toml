@@ -1,0 +1,12 @@
+[http]
+  [http.routers]
+    [http.routers.dashboard]
+    rule = "Host(`example.net`)"
+    service = "api@internal"
+    middlewares = "simple-auth"
+  [http.middlewares]
+    [http.middlewares.simple-auth.basicAuth]
+    users = [
+      "test:$apr1$SimrQ.wb$rKloZud3pWWFlxtSqc6ip/",
+      "test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0",
+    ]

@@ -14,7 +14,9 @@ services:
       - "80:80"
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
+      #- "8080:8080"
+    expose:
+      - 8080
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -39,6 +41,8 @@ services:
       MEDIA_DIR: ${UPLOAD_DIR}
     networks:
       - proxy_default
+    labels:
+      - "traefik.http.middlewares.compressor.compress=true"
 
   # caddy:
   #   image: abiosoft/caddy:no-stats
@@ -65,10 +69,13 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
       HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
+      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "inherited_roles"
     networks:
       - proxy_default
     expose:
       - 8080
+    labels:
+      - "traefik.http.middlewares.compressor.compress=true"
 
   db:
     container_name: postgis

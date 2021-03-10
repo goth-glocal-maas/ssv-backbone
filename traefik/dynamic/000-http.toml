@@ -5,9 +5,16 @@
     service = "api@internal"
     middlewares = "simple-auth"
     [http.routers.dashboard.tls]
-       certResolver = "myresolver"
+      certResolver = "myresolver"
+
+    [http.routers.healthcheck]
+    rule = "Host(`traffic.10z.dev`) && PathPrefix(`/ping`)"
+    service = "ping@internal"
+    [http.routers.healthcheck.tls]
+      certResolver = "myresolver"
 
   [http.middlewares]
+    [http.middlewares.compressor.compress]
     [http.middlewares.simple-auth.basicAuth]
     users = [
       "test:$apr1$SimrQ.wb$rKloZud3pWWFlxtSqc6ip/",

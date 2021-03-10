@@ -20,6 +20,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.toml:/etc/traefik/traefik.toml
       - ./traefik/dynamic:/traefik-conf
+      - ./acme:/etc/traefik/acme
     networks:
       - proxy_default
     # labels:

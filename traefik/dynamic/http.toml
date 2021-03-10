@@ -1,9 +1,12 @@
 [http]
   [http.routers]
     [http.routers.dashboard]
-    rule = "Host(`example.net`)"
+    rule = "Host(`traffic.10z.dev`)"
     service = "api@internal"
     middlewares = "simple-auth"
+    [http.routers.dashboard.tls]
+       certResolver = "myresolver"
+
   [http.middlewares]
     [http.middlewares.simple-auth.basicAuth]
     users = [

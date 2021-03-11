@@ -14,9 +14,7 @@
       certResolver = "myresolver"
 
   [http.middlewares]
-    [http.middlewares.compressor.compress]
     [http.middlewares.simple-auth.basicAuth]
     users = [
-      "test:$apr1$SimrQ.wb$rKloZud3pWWFlxtSqc6ip/",
-      "test2:$$apr1$$d9hr9HBB$$4HxwgUir3HP4EsggP/QNo0",
+      "sipp11:$apr1$R73svdYc$vWZ4GiV8GHabQL0JRqDax.",
     ]

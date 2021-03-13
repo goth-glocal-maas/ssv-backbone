@@ -20,3 +20,9 @@
     users = [
       "sipp11:$apr1$R73svdYc$vWZ4GiV8GHabQL0JRqDax.",
     ]
+
+    [http.middlewares.rate-limiter.rateLimit]
+    # an average of 30 requests per second is allowed.
+    # a burst of 50 requests is allowed.
+    average = 30
+    burst = 50

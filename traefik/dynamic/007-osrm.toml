@@ -4,6 +4,7 @@
     entryPoints = ["websecure"]
     rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/route/v1/car`)"
     service = "car-routing-osrm@docker"
+    middlewares = ["rate-limiter"]
     [http.routers.osrm-car.tls]
        certResolver = "myresolver"
 
@@ -11,5 +12,6 @@
     entryPoints = ["websecure"]
     rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/route/v1/walk`)"
     service = "walk-routing-osrm@docker"
+    middlewares = ["rate-limiter"]
     [http.routers.osrm-walk.tls]
        certResolver = "myresolver"

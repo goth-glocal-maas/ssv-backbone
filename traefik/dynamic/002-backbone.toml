@@ -11,5 +11,6 @@
     entryPoints = ["websecure"]
     rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/v1`,`/console`)"
     service = "graphql-backbone@docker"
+    middlewares = ["rate-limiter"]
     [http.routers.gql-express.tls]
        certResolver = "myresolver"

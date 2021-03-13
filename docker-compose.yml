@@ -38,15 +38,7 @@ services:
     networks:
       - proxy_default
     labels:
-      - "traefik.http.middlewares.compressor.compress=true"
-
-  # caddy:
-  #   image: abiosoft/caddy:no-stats
-  #   volumes:
-  #     - ./Caddyfile:/etc/Caddyfile
-  #     - ./:/code
-  #   ports:
-  #     - "1178:2015"
+      - traefik.http.middlewares.compressor.compress=true
 
   redis:
     image: redis:alpine
@@ -73,7 +65,7 @@ services:
     expose:
       - 8080
     labels:
-      - "traefik.http.middlewares.compressor.compress=true"
+      - traefik.http.middlewares.compressor.compress=true
 
   db:
     container_name: postgis

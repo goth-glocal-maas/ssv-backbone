@@ -40,15 +40,6 @@ services:
     labels:
       - traefik.http.middlewares.compressor.compress=true
 
-  redis:
-    image: redis:alpine
-    networks:
-      - proxy_default
-    expose:
-      - 6379
-    labels:
-      - traefik.tcp.routers.redis
-
   graphql:
     container_name: graphql
     image: hasura/graphql-engine:v1.3.3
@@ -86,6 +77,15 @@ services:
     labels:
       - traefik.tcp.routers.psql.entrypoints=postgresql
 
+  redis:
+    container_name: redis
+    image: redis:alpine
+    networks:
+      - proxy_default
+    expose:
+      - 6379
+    labels:
+      - traefik.tcp.routers.redis
 
 volumes:
   goth-data:

@@ -2,8 +2,8 @@
   [http.routers]
     [http.routers.chatbot]
     entryPoints = ["websecure"]
-    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/line-bot`,`/webhook`))"
-    service = "server-chatbot@docker"
+    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/line-bot`,`/webhook`,`/static`)"
+    service = "dev-server-chatbot@docker"
     middlewares = ["rate-limiter"]
     [http.routers.chatbot.tls]
        certResolver = "myresolver"

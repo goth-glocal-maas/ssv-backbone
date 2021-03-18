@@ -1,3 +1,7 @@
+[experimental.plugins.fail2ban]
+  moduleName = "github.com/tommoulard/fail2ban"
+  version = "v0.6.0"
+
 [http]
   [http.routers]
     [http.routers.dashboard]
@@ -26,3 +30,35 @@
     # a burst of 50 requests is allowed.
     average = 30
     burst = 50
+
+    [http.middlewares.my-fail2ban]
+      [http.middlewares.my-fail2ban.plugin]
+        [http.middlewares.my-fail2ban.plugin.fail2ban]
+          [http.middlewares.my-fail2ban.plugin.fail2ban.blacklist]
+            ip = ["192.168.0.0/24"]
+          [http.middlewares.my-fail2ban.plugin.fail2ban.rules]
+            action = ""
+            actionAbuseipdb = ""
+            backend = ""
+            banaction = ""
+            banactionAllports = ""
+            bantime = "3h"
+            chain = ""
+            destemail = ""
+            enabled = true
+            fail2banAgent = ""
+            filter = ""
+            findtime = "10m"
+            ignorecommand = ""
+            logencoding = "UTF-8"
+            maxretry = 4
+            mode = ""
+            mta = ""
+            ports = "0:8000"
+            protocol = ""
+            sender = ""
+            urlregexp = ""
+            usedns = ""
+          [http.middlewares.my-fail2ban.plugin.fail2ban.whitelist]
+            ip = ["::1", "127.0.0.1"]
+

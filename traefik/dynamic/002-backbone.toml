@@ -2,7 +2,7 @@
   [http.routers]
     [http.routers.backbone-express]
     entryPoints = ["web", "websecure"]
-    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/upload`,`/login`,`/signup`)"
+    rule = "Host(`ssv-one.10z.dev`) && PathPrefix(`/upload`,`/login`,`/signup`,`/req-reset`,`/reset-password`)"
     service = "supplements-backbone@docker"
     [http.routers.backbone-express.tls]
        certResolver = "myresolver"

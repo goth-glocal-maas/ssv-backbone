@@ -6,5 +6,3 @@
       # Catch every request (only available rule for non-tls routers. See below.)
       rule = "HostSNI(`*`)"
       service = "db-backbone@docker"
-    #[tcp.routers.postgres.tls]
-    #  certResolver = "myresolver"

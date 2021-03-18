@@ -21,6 +21,11 @@ services:
       - ./acme:/etc/traefik/acme
     networks:
       - proxy_default
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "2"
 
   supplements:
     build: ./supplements
@@ -39,6 +44,12 @@ services:
       - proxy_default
     labels:
       - traefik.http.middlewares.compressor.compress=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100k"
+        max-file: "1"
+
 
   graphql:
     container_name: graphql
@@ -48,15 +59,19 @@ services:
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET}
-      HASURA_GRAPHQL_JWT_SECRET: ${ENCRYPTION_KEY}
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"RS512", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAufgr6Q7N3AcWqasjymgX\nkpgyx6Ro+dVrVsXxOdDc0WauKlONq4NCte1d4W3/PzP1GXLY54yACcAU46Jptwbk\nZ+W+kuMRIu/kQux6lMXJkyp2t2pPIoLJ8WcH690YR2RGqGfYvaFwmUakQnxdWCvG\nj2IplAGzyOQOYEnNfDa10U/+uCGgXNxvz5D4BQXippElmTzRckKwZlEgsPkr+0JY\nHKkSSuHS3R3qXCWuDoGY+tBhR6qXrAiaNGQDmZ7Y27Hss4h6Q9nfbVUdyXw0FJPD\n8MkferLUMHdymK3xM96KYQb9BKFcAQP8uHp+pj1YrEAsQnE/uJbGijaA7oodcXK3\naQIDAQAB\n-----END PUBLIC KEY-----\n"}'
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
       HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "inherited_roles"
     networks:
       - proxy_default
     expose:
       - 8080
-    labels:
-      - traefik.http.middlewares.compressor.compress=true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "3"
 
   db:
     container_name: postgis
@@ -76,6 +91,12 @@ services:
     command: postgres -c 'max_connections=300'
     labels:
       - traefik.tcp.routers.psql.entrypoints=postgresql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "2"
+
 
   redis:
     container_name: redis
@@ -86,6 +107,12 @@ services:
       - 6379
     labels:
       - traefik.tcp.routers.redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50k"
+        max-file: "1"
+
 
 volumes:
   goth-data:
